@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Dashboard</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<div class="logo">
+
+Event Admin
+
+</div>
+
+
+<a href="#" onclick="loadDashboard()">Dashboard</a>
+
+<a href="#" onclick="loadTable('users')">Users</a>
+
+<a href="#" onclick="loadTable('events')">Events</a>
+
+<a href="#" onclick="loadTable('bookings')">Bookings</a>
+
+<a href="#" onclick="loadTable('payments')">Payments</a>
+
+
+</div>
+
+
+
+<!-- MAIN CONTENT -->
+
+<div class="main">
+
+
+
+<!-- NAVBAR -->
+
+<div class="navbar" id="navbarTitle">
+
+Dashboard Overview
+
+</div>
+
+
+
+<!-- DASHBOARD SECTION -->
+
+<div id="dashboardSection">
+
+
+<!-- CARDS -->
+
+
+
+
+
+
+
+<!-- TABLE SECTION -->
+
+<div class="table-container">
+
+
+<div class="section-title" id="tableTitle">
+
+Data
+
+</div>
+
+
+<table>
+
+<thead id="thead">
+
+</thead>
+
+
+<tbody id="tbody">
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+
+/* LOAD DASHBOARD */
+
+loadDashboard();
+
+
+function loadDashboard(){
+
+
+document.getElementById("navbarTitle").innerText =
+"Dashboard Overview";
+
+
+fetch("admin.php")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+document.getElementById("users").innerText =
+data.totalUsers;
+
+
+document.getElementById("events").innerText =
+data.totalEvents;
+
+
+document.getElementById("bookings").innerText =
+data.totalBookings;
+
+
+
+let labels=[];
+let values=[];
+
+
+data.popular.forEach(event=>{
+
+labels.push(event.event_name);
+
+values.push(event.total);
+
+});
+
+
+new Chart(document.getElementById("chart"),{
+
+type:"bar",
+
+data:{
+
+labels:labels,
+
+datasets:[{
+
+data:values,
+borderRadius:5
+
+}]
+
+},
+
+options:{
+
+plugins:{legend:{display:false}},
+
+scales:{y:{beginAtZero:true}}
+
+}
+
+});
+
+
+});
+
+
+}
+
+
+
+/* LOAD TABLE */
+
+function loadTable(table){
+
+
+document.getElementById("navbarTitle").innerText =
+table.toUpperCase();
+
+
+document.getElementById("tableTitle").innerText =
+table.toUpperCase()+" DATA";
+
+
+fetch("get_data.php?table="+table)
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+if(data.length==0)return;
+
+
+/* HEADERS */
+
+let headers=Object.keys(data[0]);
+
+let thead="<tr>";
+
+headers.forEach(h=>{
+
+thead+=`<th>${h}</th>`;
+
+});
+
+thead+="</tr>";
+
+document.getElementById("thead").innerHTML=thead;
+
+
+
+/* BODY */
+
+let tbody="";
+
+data.forEach(row=>{
+
+
+tbody+="<tr>";
+
+
+headers.forEach(h=>{
+
+tbody+=`<td>${row[h]}</td>`;
+
+});
+
+
+tbody+="</tr>";
+
+});
+
+
+document.getElementById("tbody").innerHTML=tbody;
+
+
+});
+
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
